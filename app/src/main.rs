@@ -1,7 +1,13 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, ResponseError, HttpRequest};
 use std::env;
+use actix_files::NamedFile;
 //use actix_files as fs;
+use std::path::PathBuf;
 
+async fn index(req: HttpRequest) -> Result<NamedFile, dyn ResponseError> {
+    let path: PathBuf = req.match_info().query("filename").parse()?;
+    Ok(NamedFile::open(path)?)
+}
 #[get("/healthz")]
 async fn healthz() -> impl Responder {
     HttpResponse::Ok().body("Alive")
@@ -29,9 +35,11 @@ async fn main() -> std::io::Result<()> {
     HttpServer::new(|| {
         App::new()
             // .handler("/static", fs::Files::new(".", ()).unwrap())
+
             .service(healthz)
             .service(hello)
             .service(echo)
+            .route("/{filename:index.*}", web::get().to(index))
             .route("/hey", web::get().to(manual_hello))
     })
         .bind(("0.0.0.0", port))?
