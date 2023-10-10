@@ -13,9 +13,9 @@ async fn healthz() -> impl Responder {
     HttpResponse::Ok().body("Alive")
 }
 
-#[get("/")]
+#[get("/hello")]
 async fn hello() -> impl Responder {
-    HttpResponse::Ok().body("OK")
+    HttpResponse::Ok().body("Hello World")
 }
 
 #[post("/echo")]
@@ -34,13 +34,11 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
-            // .handler("/static", fs::Files::new(".", ()).unwrap())
             .service(healthz)
-            //.service(hello)
+            .service(hello)
             .service(echo)
-            //.route("/{filename:index.*}", web::get().to(index))
             .route("/hey", web::get().to(manual_hello))
-            .service(fs::Files::new("/", "../static").show_files_listing().index_file("index.html"))
+            .service(fs::Files::new("/", "./static").show_files_listing().index_file("index.html"))
     })
         .bind(("0.0.0.0", port))?
         .run()
