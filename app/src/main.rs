@@ -1,5 +1,6 @@
 use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder};
 use std::env;
+use actix_files as fs;
 
 #[get("/healthz")]
 async fn healthz() -> impl Responder {
@@ -27,12 +28,13 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(|| {
         App::new()
+            .handler("/static", fs::Files::new(".", ()).unwrap())
             .service(healthz)
             .service(hello)
             .service(echo)
             .route("/hey", web::get().to(manual_hello))
     })
-    .bind(("0.0.0.0", port))?
-    .run()
-    .await
+        .bind(("0.0.0.0", port))?
+        .run()
+        .await
 }
