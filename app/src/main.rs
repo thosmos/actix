@@ -1,11 +1,11 @@
-use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, ResponseError, HttpRequest};
+use actix_web::{get, post, web, App, HttpResponse, HttpServer, Responder, HttpRequest, Error};
 use std::env;
 use actix_files::NamedFile;
 //use actix_files as fs;
 use std::path::PathBuf;
 
-async fn index(req: HttpRequest) -> Result<NamedFile, dyn ResponseError> {
-    let path: PathBuf = req.match_info().query("filename").parse()?;
+async fn index(req: HttpRequest) -> Result<NamedFile, Error> {
+    let path: PathBuf = req.match_info().query("filename").parse().unwrap();
     Ok(NamedFile::open(path)?)
 }
 #[get("/healthz")]
